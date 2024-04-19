@@ -1,0 +1,33 @@
+Channed Data Schema
+
+root
+ |-- kind: string (nullable = true)
+ |-- channel_id: string (nullable = true)
+ |-- channel_title: string (nullable = true)
+ |-- channel_description: string (nullable = true)
+ |-- channel_publishedAt: date (nullable = true)
+ |-- channel_country: string (nullable = true)
+ |-- channel_viewCount: integer (nullable = true)
+ |-- channel_subscriberCount: integer (nullable = true)
+ |-- channel_videoCount: integer (nullable = true)
+
+
+Video Data Schema
+
+root
+ |-- channelId: string (nullable = true)
+ |-- video_id: string (nullable = true)
+ |-- publishedAt: date (nullable = true)
+ |-- title: string (nullable = true)
+ |-- description: string (nullable = true)
+ |-- tags: string (nullable = false)
+ |-- categoryId: integer (nullable = true)
+ |-- viewCount: integer (nullable = true)
+ |-- likeCount: integer (nullable = true)
+ |-- commentCount: integer (nullable = true)
+
+Comments Data Schema
+root
+ |-- channelId: string (nullable = true)
+ |-- videoId: string (nullable = true)
+ |-- Comments: string (nullable = false)
