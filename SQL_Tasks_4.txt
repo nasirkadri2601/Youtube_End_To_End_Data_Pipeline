@@ -1,0 +1,47 @@
+-- Set up TASKADMIN role
+use role securityadmin;
+create or replace role taskadmin;
+
+-- Set the active role to ACCOUNTADMIN before granting the EXECUTE TASK privilege to TASKADMIN
+use role accountadmin;
+grant execute task on account to role taskadmin;
+
+-- Set the active role to SECURITYADMIN to show that this role can grant a role to another role 
+use role securityadmin;
+grant role taskadmin to role sysadmin;
+
+-- Create a task for handling slowly changing dimension (SCD) in the Channel_table
+create or replace task channel_scd_task 
+warehouse = COMPUTE_WH 
+schedule = '1 minute'
+ERROR_ON_NONDETERMINISTIC_MERGE=FALSE
+as
+call channel_scd_demo();
+
+-- Create a task for handling slowly changing dimension (SCD) in the Video_table
+create or replace task video_scd_task 
+warehouse = COMPUTE_WH 
+schedule = '1 minute'
+ERROR_ON_NONDETERMINISTIC_MERGE=FALSE
+as
+call video_scd_demo();
+
+-- Create a task for handling slowly changing dimension (SCD) in the Comments_table
+create or replace task comments_scd_task 
+warehouse = COMPUTE_WH 
+schedule = '1 minute'
+ERROR_ON_NONDETERMINISTIC_MERGE=FALSE
+as
+call comments_scd_demo();
+
+-- Show all tasks
+show tasks;
+
+-- To start a task, use 'resume'. To stop a task, use 'suspend'.
+alter task channel_scd_task resume;
+alter task video_scd_task resume;
+alter task comments_scd_task resume;
+
+alter task channel_scd_task suspend;
+alter task video_scd_task suspend;
+alter task comments_scd_task suspend;

@@ -1,0 +1,28 @@
+-- Create or replace schema
+Create or replace schema pipe;
+
+-- Create or replace pipe for channel data ingestion
+create or replace pipe youtube_db.pipe.channel_pipe
+auto_ingest = TRUE
+AS
+COPY INTO youtube_db.public.Channel_raw_table
+from @youtube_db.public.youtube_stage/channel_data;
+
+-- Create or replace pipe for video data ingestion
+create or replace pipe youtube_db.pipe.video_pipe
+auto_ingest = TRUE
+AS
+COPY INTO youtube_db.public.Video_raw_table
+from @youtube_db.public.youtube_stage/video_data;
+
+-- Create or replace pipe for comments data ingestion
+create or replace pipe youtube_db.pipe.comments_pipe
+auto_ingest = TRUE
+AS
+COPY INTO youtube_db.public.Comments_raw_table
+from @youtube_db.public.youtube_stage/comments_data;
+
+-- Describe the pipes
+DESC pipe youtube_db.pipe.channel_pipe;
+DESC pipe youtube_db.pipe.video_pipe;
+DESC pipe youtube_db.pipe.comments_pipe;
