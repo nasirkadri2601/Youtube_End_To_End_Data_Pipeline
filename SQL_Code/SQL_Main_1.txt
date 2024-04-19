@@ -1,0 +1,103 @@
+-- Create Database
+CREATE DATABASE YOUTUBE_DB;
+
+-- Create or replace storage integration for S3 access
+create or replace storage integration s3_init
+    TYPE = EXTERNAL_STAGE
+    STORAGE_PROVIDER = S3
+    ENABLED = TRUE
+    STORAGE_AWS_ROLE_ARN = 'arn:aws:iam::337033114045:role/youtube-spark-snowflake-role'
+    STORAGE_ALLOWED_LOCATIONS = ('s3://youtube-etl-njk')
+    COMMENT = 'Creating connection to s3';
+
+-- Describe the storage integration for S3 access
+DESC integration s3_init;
+
+-- Define file format for CSV files
+CREATE OR REPLACE file format csv_fileformat
+    type = csv
+    field_delimiter = ','
+    skip_header = 1
+    null_if = ('NULL','null')
+    empty_field_as_null = TRUE
+    error_on_column_count_mismatch = False;
+
+-- Create a stage for loading data from S3
+create or replace stage youtube_stage
+    URL = 's3://youtube-etl-njk/transformed_data/'
+    STORAGE_INTEGRATION = s3_init
+    File_format = csv_fileformat;
+
+-- List files in the S3 stage for comments data
+LIST @youtube_stage/comments_data;
+
+-- Define table structure for processed channel data
+CREATE OR REPLACE TABLE Channel_table(
+    kind string,
+    Id string,
+    Playlist_Id string,
+    Title string, 
+    Description string,
+    Published_At date,
+    Country string,
+    View_Count integer,
+    Subscriber_Count integer,
+    Video_Count integer,
+    Update_Timestamp timestamp_ntz default current_timestamp()
+);
+
+-- Define table structure for raw channel data
+CREATE OR REPLACE TABLE Channel_raw_table(
+    kind string,
+    Id string,
+    Playlist_Id string,
+    Title string, 
+    Description string,
+    Published_At date,
+    Country string,
+    View_Count integer,
+    Subscriber_Count integer,
+    Video_Count integer
+);
+
+-- Define table structure for processed video data
+CREATE OR REPLACE TABLE Video_table(
+    Channel_Id string,
+    Video_Id string,
+    Published_At date,
+    Title string,
+    Description string,
+    Category_Id integer,
+    View_Count integer,
+    Like_Count integer,
+    Comment_Count integer,
+    Update_Timestamp timestamp_ntz default current_timestamp()
+);
+
+-- Define table structure for raw video data
+CREATE OR REPLACE TABLE Video_raw_table(
+    Channel_Id string,
+    Video_Id string,
+    Published_At date,
+    Title string,
+    Description string,
+    Category_Id integer,
+    View_Count integer,
+    Like_Count integer,
+    Comment_Count integer
+);
+
+-- Define table structure for processed comments data
+CREATE OR REPLACE TABLE Comments_table(
+    Channel_Id string,
+    Video_Id string,
+    Comments string,
+    Update_Timestamp timestamp_ntz default current_timestamp()
+);
+
+-- Define table structure for raw comments data
+CREATE OR REPLACE TABLE Comments_raw_table(
+    Channel_Id string,
+    Video_Id string,
+    Comments string
+);

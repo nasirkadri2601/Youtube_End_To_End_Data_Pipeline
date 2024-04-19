@@ -1,0 +1,115 @@
+-- Create or replace procedure for handling slowly changing dimension (SCD) in the Channel_table
+CREATE OR REPLACE PROCEDURE channel_scd_demo()
+returns string not null
+language javascript
+as
+    $$
+      // Merge command to update or insert data into Channel_table based on changes in Channel_raw_table
+      var cmd = `
+                 merge into Channel_table c 
+                 using Channel_raw_table cr
+                    on  c.Id = cr.Id
+                 when matched and c.Kind <> cr.Kind or
+                                  c.Id  <> cr.Id  or
+                                  c.Playlist_Id <> cr.Playlist_Id or
+                                  c.Title <> cr.Title or
+                                  c.Description <> cr.Description or
+                                  c.Published_At <> cr.Published_At or
+                                  c.Country <> cr.Country or
+                                  c.View_Count <> cr.View_Count or
+                                  c.Subscriber_Count <> cr.Subscriber_Count or
+                                  c.Video_Count <> cr.Video_Count then update
+                      set c.Kind = cr.Kind
+                         ,c.Id  = cr.Id
+                         ,c.Playlist_Id = cr.Playlist_Id
+                         ,c.Title = cr.Title  
+                         ,c.Description = cr.Description      
+                         ,c.Published_At = cr.Published_At     
+                         ,c.Country = cr.Country       
+                         ,c.View_Count = cr.View_Count      
+                         ,c.Subscriber_Count = cr.Subscriber_Count
+                         ,c.Video_Count = cr.Video_Count
+                         ,update_timestamp = current_timestamp()
+                 when not matched then insert                                  
+(c.Kind,c.Id,c.Playlist_Id,c.Title,c.Description,c.Published_At,c.Country,c.View_Count,c.Subscriber_Count,c.Video_Count) values (cr.Kind,cr.Id,cr.Playlist_Id,cr.Title,cr.Description,cr.Published_At,cr.Country,cr.View_Count,cr.Subscriber_Count,cr.Video_Count);
+`
+      // Truncate command to clear Channel_raw_table after data is processed
+      var cmd1 = "truncate table youtube_db.public.Channel_raw_table;"
+      var sql = snowflake.createStatement({sqlText: cmd});
+      var sql1 = snowflake.createStatement({sqlText: cmd1});
+      var result = sql.execute();
+      var result1 = sql1.execute();
+    return cmd+'\n'+cmd1;
+    $$;
+
+-- Create or replace procedure for handling slowly changing dimension (SCD) in the Video_table
+CREATE OR REPLACE PROCEDURE video_scd_demo()
+returns string not null
+language javascript
+as
+    $$
+      // Merge command to update or insert data into Video_table based on changes in Video_raw_table
+      var cmd = `
+                 merge into Video_table v 
+                 using Video_raw_table vr
+                    on  v.Video_Id = vr.Video_Id
+                 when matched and v.Channel_Id <> vr.Channel_Id or
+                                  v.Video_Id  <> vr.Video_Id  or
+                                  v.Published_At <> vr.Published_At or
+                                  v.Title <> vr.Title or
+                                  v.Description <> vr.Description or
+                                  v.Category_Id <> vr.Category_Id or
+                                  v.View_Count <> vr.View_Count or
+                                  v.Like_Count <> vr.Like_Count or
+                                  v.Comment_Count <> vr.Comment_Count then update
+                      set v.Channel_Id = vr.Channel_Id
+                         ,v.Video_Id  = vr.Video_Id 
+                         ,v.Published_At = vr.Published_At  
+                         ,v.Title = vr.Title      
+                         ,v.Description = vr.Description     
+                         ,v.Category_Id = vr.Category_Id       
+                         ,v.View_Count = vr.View_Count      
+                         ,v.Like_Count = vr.Like_Count
+                         ,v.Comment_Count = vr.Comment_Count
+                         ,update_timestamp = current_timestamp()
+                 when not matched then insert                                  
+(v.Channel_Id,v.Video_Id,v.Published_At,v.Title,v.Description,v.Category_Id,v.View_Count,v.Like_Count,v.Comment_Count) values (vr.Channel_Id,vr.Video_Id,vr.Published_At,vr.Title,vr.Description,vr.Category_Id,vr.View_Count,vr.Like_Count,vr.Comment_Count);
+`
+      // Truncate command to clear Video_raw_table after data is processed
+      var cmd1 = "truncate table youtube_db.public.Video_raw_table;"
+      var sql = snowflake.createStatement({sqlText: cmd});
+      var sql1 = snowflake.createStatement({sqlText: cmd1});
+      var result = sql.execute();
+      var result1 = sql1.execute();
+    return cmd+'\n'+cmd1;
+    $$;
+
+-- Create or replace procedure for handling slowly changing dimension (SCD) in the Comments_table
+CREATE OR REPLACE PROCEDURE comments_scd_demo()
+returns string not null
+language javascript
+as
+    $$
+      // Merge command to update or insert data into Comments_table based on changes in Comments_raw_table
+      var cmd = `
+                 merge into Comments_table c 
+                 using Comments_raw_table cr
+                    on  c.Video_Id = cr.Video_Id
+                 when matched and c.Channel_Id <> cr.Channel_Id or
+                                  c.Video_Id  <> cr.Video_Id  or
+                                  c.Comments <> cr.Comments then update
+                      set c.Channel_Id = cr.Channel_Id
+                         ,c.Video_Id  = cr.Video_Id 
+                         ,c.Comments = cr.Comments
+                         ,update_timestamp = current_timestamp()
+                 when not matched then insert                                  
+(c.Channel_Id,c.Video_Id,c.Comments) values (cr.Channel_Id,cr.Video_Id,cr.Comments);
+`
+      // Truncate command to clear Comments_raw_table after data is processed
+      var cmd1 = "truncate table youtube_db.public.Comments_raw_table;"
+      var sql = snowflake.createStatement({sqlText: cmd});
+      var sql1 = snowflake.createStatement({sqlText: cmd1});
+      var result = sql.execute();
+      var result1 = sql1.execute();
+    return cmd+'\n'+cmd1;
+    $$;
