@@ -1,4 +1,4 @@
-Quick overview of my project
+Complete information about the project:
 
 Step 1: To extract data from youtube, first you need to create an API which will help you to extract data. You can create it from google developer console website.
 Step 2: Go to youtube data api website. From there you can get all the sample codes which is required to extract data in all the programming languages (I have preferred python).
