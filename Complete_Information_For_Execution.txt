@@ -25,4 +25,8 @@ While creating storage integration, STORAGE_AWS_ROLE_ARN value should be taken f
 Also describe integration in snowflake. there you will see 2 values i.e. STORAGE_AWS_IAM_USER_ARN and STORAGE_AWS_EXTERNAL_ID. these value needs to be copy into AWS role which has S3 full access. go into specific role--> trust relationship. There replace AWS and External id value with these 2 values mentioned in the snowflake.
 After creating pipes in snowflake describe the pipe (DESC PIPE PIPENAME) and you will see notification channel colunmn. Copy that and create a event notification in S3 bucket properties.
 
+How to connect with power BI.
+Open Power BI. Click on get data and after that select snowflake. then it will ask server and warehouse name. Go to snowflake account info, there you will find active account and there will be an option to copy the URL. Copy that url, remove http:// and paste it in the server and in the warehouse name type the currect warehouse name which you are working.
+
 If you need help then ping me on linkedin: https://www.linkedin.com/in/nasir-kadri-86573019b
+or email me at : nasirkadri2601@gmail.com
